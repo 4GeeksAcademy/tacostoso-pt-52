@@ -44,14 +44,17 @@ def get_proteins():
     ]), 200
 
 
+def search_protein_by(id):
+    search_protein = Protein.query.get(id)
+    if not search_protein:
+        raise APIException(
+            f"protein with id {id} not in database.", status_code=404)
+    return search_protein
+
+
 @api.route('/proteins/<int:id>', methods=['GET'])
 def get_single_protein(id):
-
-    search_protein = Protein.query.get(id)
-
-    if not search_protein:
-        return jsonify({"msg": f"protein with id {id} not in database."}), 404
-
+    search_protein = search_protein_by(id)
     return jsonify(search_protein.serialize()), 200
 
 
@@ -76,3 +79,30 @@ def create_protein():
         return jsonify({"msg": "Somethign weird happened."}), 500
 
     return jsonify(new_protein.serialize()), 201
+
+
+@api.route('/proteins/<int:id>', methods=['PUT'])
+def update_protein(id):
+    search_protein = search_protein_by(id)
+
+    body = request.get_json()
+
+    new_name = body.get("name")
+    new_price = body.get("price")
+
+    if new_name:
+        search_protein.name = new_name
+    if new_price:
+        search_protein.price = new_price
+
+    db.session.commit()  # Actualizar la BD
+
+    return jsonify(search_protein.serialize()), 200
+
+
+@api.route('/proteins/<int:id>', methods=['DELETE'])
+def delete_protein(id):
+    search_protein = search_protein_by(id)
+    db.session.delete(search_protein)
+    db.session.commit()
+    return jsonify({"done": True}), 200
