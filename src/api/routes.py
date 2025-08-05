@@ -22,3 +22,57 @@ def handle_hello():
     }
 
     return jsonify(response_body), 200
+
+
+@api.route('/sauces', methods=['GET'])
+def get_sauces():
+
+    lista_de_salsas = Sauce.query.all()
+
+    return jsonify([
+        salsa.serialize() for salsa in lista_de_salsas
+    ]), 200
+
+
+@api.route('/proteins', methods=['GET'])
+def get_proteins():
+
+    proteins = Protein.query.all()
+
+    return jsonify([
+        protein.serialize() for protein in proteins
+    ]), 200
+
+
+@api.route('/proteins/<int:id>', methods=['GET'])
+def get_single_protein(id):
+
+    search_protein = Protein.query.get(id)
+
+    if not search_protein:
+        return jsonify({"msg": f"protein with id {id} not in database."}), 404
+
+    return jsonify(search_protein.serialize()), 200
+
+
+def reqValues(body, keys):
+    for key in keys:
+        if key not in body:
+            raise APIException(f"Missing key {key} in body.", status_code=400)
+
+    return tuple(body.get(key) for key in keys)
+
+
+@api.route('/proteins', methods=['POST'])
+def create_protein():
+
+    body = request.get_json()
+    name, price = reqValues(body, ['name', 'price'])
+
+    try:
+        new_protein = Protein(name=name, price=price)
+        new_protein.save()
+    except:
+        return jsonify({"msg": "Somethign weird happened."}), 500
+
+    return jsonify(new_protein.serialize()), 201

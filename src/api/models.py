@@ -32,6 +32,24 @@ class Protein(db.Model):
     price: Mapped[float] = mapped_column(Float(2), nullable=False)
     # tacos
 
+    def __init__(self, name, price):
+        self.name = name
+        self.price = float(price)
+
+    def save(self):
+        try:
+            db.session.add(self)
+            db.session.commit()
+        except:
+            return Exception("Something happened storing the protein in the db.")
+
+    def serialize(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "price": self.price
+        }
+
 
 class Spice(pyenum):
     BAJO = 0
@@ -42,6 +60,7 @@ class Spice(pyenum):
     ARRANCA_GARGANTAS = 5
 
 
+# Modelado
 assosiation_sauces = db.Table('assosiation_sauces', db.metadata,
                               db.Column('taco_id', Integer,
                                         ForeignKey('taco.id')),
@@ -59,6 +78,12 @@ class Sauce(db.Model):
         secondary=assosiation_sauces, back_populates="sauces"
     )
 
+    def serialize(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "spice": self.spice.name
+        }
 
 class Taco(db.Model):
     id: Mapped[int] = mapped_column(primary_key=True)
@@ -73,3 +98,9 @@ class Taco(db.Model):
     sauces: Mapped[List["Sauce"]] = relationship(
         secondary=assosiation_sauces, back_populates="tacos"
     )
+
+    def serialize(self):
+        return {
+            "id": self.id,
+            "tortilla": self.tortilla
+        }
