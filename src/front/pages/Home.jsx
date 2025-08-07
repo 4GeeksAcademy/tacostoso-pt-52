@@ -93,25 +93,51 @@ const exampleTacos = [
 ]
 
 const TacoCard = ({ taco }) => {
-
-	return (<div className="col-3">
-		<div className="card m-2" style={{ width: "18rem;" }}>
-			<img src={tacoImage} className="card-img-top" alt="...some taco" />
-			<div className="card-body">
-				<h5 className="card-title">Taco de {taco && taco.protein.name}</h5>
-				<p className="card-text">
-					Some quick example text to build on the card title and make up
-					the bulk of the card's content.
-				</p>
-				<a href="#" className="btn btn-success">
-					Go somewhere
-				</a>
+	return (
+		<div className="col-3">
+			<div className="card m-2" style={{ width: "18rem" }}>
+				<img
+					src={tacoImage}
+					className="card-img-top"
+					alt={`Taco de ${taco.protein ? taco.protein.name : "desconocido"}`}
+				/>
+				<div className="card-body">
+					<h5 className="card-title">Taco de {taco && taco.protein.name}</h5>
+					<p className="card-text">
+						<strong>
+							<i className="fa-solid fa-drumstick-bite" style={{
+								color: "#a15912"
+							}}>
+							</i> Proteína:
+						</strong>{" "}
+						{taco.protein.name} (${taco.protein.price.toFixed(2)}) <br />
+						<strong>
+							<i className="fa-solid fa-pepper-hot"
+								style={{
+									color: "red"
+								}}>
+							</i> Salsas:
+						</strong>{" "}
+						{taco.sauces && taco.sauces.length > 0
+							? taco.sauces.map((sauce) => sauce.name).join(", ")
+							: "Ninguna"} <br />
+						<strong>
+							<i className="fa-solid fa-bread-slice"
+								style={{
+									color: "#e3c19f"
+								}}
+							></i> Tortilla:
+						</strong>{" "}
+						{taco.tortilla}
+					</p>
+					<button className="btn btn-success">
+						Ver detalles
+					</button>
+				</div>
 			</div>
 		</div>
-
-	</div>)
-
-}
+	);
+};
 
 export const Home = () => {
 
