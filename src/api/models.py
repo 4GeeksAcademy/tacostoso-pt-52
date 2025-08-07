@@ -99,8 +99,30 @@ class Taco(db.Model):
         secondary=assosiation_sauces, back_populates="tacos"
     )
 
+    def __init__(self, tortilla, protein, sauces=[]):
+
+        self.tortilla = Tortilla(tortilla)
+
+        try:
+            self.tortilla = Tortilla(tortilla)
+        except ValueError:
+            raise ValueError("This type of tortilla is not available.")
+
+        self.protein = protein
+        self.sauces = sauces
+
+    def save(self):
+        try:
+            db.session.add(self)
+            db.session.commit()
+        except:
+            Exception("Something wrong happened while storing a Taco on the db.")
+
+
     def serialize(self):
         return {
             "id": self.id,
-            "tortilla": self.tortilla
+            "tortilla": self.tortilla.name,
+            "protein": self.protein.serialize(),
+            "sauces": [item.serialize() for item in self.sauces]
         }

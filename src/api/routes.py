@@ -44,12 +44,21 @@ def get_proteins():
     ]), 200
 
 
+# Duplicacion de codigo
 def search_protein_by(id):
     search_protein = Protein.query.get(id)
     if not search_protein:
         raise APIException(
             f"protein with id {id} not in database.", status_code=404)
     return search_protein
+
+
+def search_sauce_by(id):
+    search_sauce = Sauce.query.get(id)
+    if not search_sauce:
+        raise APIException(
+            f"sauce with id {id} not in database.", status_code=404)
+    return search_sauce
 
 
 @api.route('/proteins/<int:id>', methods=['GET'])
@@ -81,21 +90,18 @@ def create_protein():
     return jsonify(new_protein.serialize()), 201
 
 
+def update_instance_values(instance, values_dict, keys):
+    for key in keys:
+        if key in values_dict:
+            setattr(instance, key, values_dict[key])
+
 @api.route('/proteins/<int:id>', methods=['PUT'])
 def update_protein(id):
     search_protein = search_protein_by(id)
 
     body = request.get_json()
-
-    new_name = body.get("name")
-    new_price = body.get("price")
-
-    if new_name:
-        search_protein.name = new_name
-    if new_price:
-        search_protein.price = new_price
-
-    db.session.commit()  # Actualizar la BD
+    update_instance_values(search_protein, body, ["name", "price"])
+    db.session.commit()
 
     return jsonify(search_protein.serialize()), 200
 
@@ -106,3 +112,32 @@ def delete_protein(id):
     db.session.delete(search_protein)
     db.session.commit()
     return jsonify({"done": True}), 200
+
+
+@api.route('/taco', methods=['POST'])
+def create_taco():
+
+    body = request.get_json()
+
+    tortilla, proteina, sauces = reqValues(
+        body, ['tortilla', 'protein', 'sauces']
+    )
+
+    protein = search_protein_by(proteina)
+
+    sauces = [search_sauce_by(sauce_id) for sauce_id in sauces]
+
+    try:
+        new_taco = Taco(tortilla=tortilla, protein=protein, sauces=sauces)
+        new_taco.save()
+
+    except ValueError as err:
+        return jsonify({"msg": "Error while adding a new Taco. " + str(err)}), 500
+
+    return jsonify(new_taco.serialize()), 201
+
+
+@api.route('/taco', methods=['GET'])
+def get_tacos():
+    tacos = Taco.query.all()
+    return jsonify([taco.serialize() for taco in tacos]), 200
