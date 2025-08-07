@@ -14,7 +14,7 @@ export const Navbar = () => {
 					{/* <Link to="/demo">
 						<button className="btn btn-primary">Check the Context in action</button>
 					</Link> */}
-					<Link>
+					<Link to={'/create/taco'}>
 						<button className="btn bg-white">
 							Order
 						</button>

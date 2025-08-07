@@ -1,5 +1,5 @@
 export const Footer = () => (
-	<footer className="footer mt-auto py-3 text-center bg-success text-white" style={{ letterSpacing: "0.5px" }}>
+	<footer className="footer mt-auto mt-5 py-3 text-center bg-success text-white" style={{ letterSpacing: "0.5px" }}>
 		<div className="container">
 			<span className="fw-bold" style={{ fontFamily: "'Playfair Display', serif", fontWeight: "700" }}>
 				🌮 Tacontodo &mdash; El sabor que conquista
