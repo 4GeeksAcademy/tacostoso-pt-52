@@ -1,6 +1,7 @@
 export const initialStore=()=>{
   return{
     message: null,
+    tacos: [],
     todos: [
       {
         id: 1,
@@ -25,13 +26,17 @@ export default function storeReducer(store, action = {}) {
       };
       
     case 'add_task':
-
       const { id,  color } = action.payload
-
       return {
         ...store,
         todos: store.todos.map((todo) => (todo.id === id ? { ...todo, background: color } : todo))
       };
+    
+    case 'set_tacos':
+      return {
+        tacos: action.payload
+      }
+  
     default:
       throw Error('Unknown action.');
   }    
