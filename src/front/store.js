@@ -2,6 +2,12 @@ export const initialStore=()=>{
   return{
     message: null,
     tacos: [],
+    profile: (localStorage.getItem("token") ?
+      {
+        email: localStorage.getItem("email"),
+        token: localStorage.getItem("token")
+      } : null
+    ),
     todos: [
       {
         id: 1,
@@ -34,7 +40,14 @@ export default function storeReducer(store, action = {}) {
     
     case 'set_tacos':
       return {
+        ...store,
         tacos: action.payload
+      }
+
+    case 'set_profile':
+      return {
+        ...store,
+        profile: action.payload
       }
   
     default:
