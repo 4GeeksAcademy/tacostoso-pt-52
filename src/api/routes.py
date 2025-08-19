@@ -7,6 +7,7 @@ from api.models import db, User, Protein, Sauce, Taco
 
 from api.utils import generate_sitemap, APIException
 from flask_cors import CORS
+from flask_jwt_extended import create_access_token, jwt_required
 
 api = Blueprint('api', __name__)
 
@@ -24,7 +25,28 @@ def handle_hello():
     return jsonify(response_body), 200
 
 
+@api.route("/login", methods=["POST"])
+def login():
+    email = request.json.get("email", None)
+    password = request.json.get("password", None)
+
+    if not email:
+        return jsonify({"msg": "Bad email or password in body."}), 400
+
+    user = User.query.filter_by(email=email).one_or_none()
+
+    if not user:
+        return jsonify({"msg": "Bad username or password"}), 401
+
+    if user.password != password:
+        return jsonify({"msg": "Bad username or password"}), 401
+
+    access_token = create_access_token(identity=email)
+    return jsonify(access_token=access_token), 200
+
+
 @api.route('/sauces', methods=['GET'])
+@jwt_required()
 def get_sauces():
 
     lista_de_salsas = Sauce.query.all()
