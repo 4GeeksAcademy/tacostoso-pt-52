@@ -8,6 +8,7 @@ from api.models import db, User, Protein, Sauce, Taco
 from api.utils import generate_sitemap, APIException
 from flask_cors import CORS
 from flask_jwt_extended import create_access_token, jwt_required
+from api.email_client import send_email
 
 api = Blueprint('api', __name__)
 
@@ -43,6 +44,42 @@ def login():
 
     access_token = create_access_token(identity=email)
     return jsonify(access_token=access_token), 200
+
+
+@api.route("/register", methods=['POST'])
+def register():
+    email = request.json.get("email", None)
+    password = request.json.get("password", None)
+
+    if not email or not password:
+        return jsonify({"msg": "Not email or password in body."}), 400
+
+    new_user = User(email, password)
+
+    try:
+        db.session.add(new_user)
+        db.session.commit()
+
+        html_body = f"""
+            <h2>Welcome to Tacostoso! 🌮</h2>
+            <p>We are so glad to have you join us {email}!
+            <p>Hope you have a <em>fantastic</em> day! ✨</p>
+        """
+
+        send_email(
+            smtp_server="smtp.gmail.com",
+            port=587,
+            username="",
+            password="",  # Use app password for Gmail
+            to_email=email,
+            subject="Welcome to our app Tacostoso! 🌟",
+            body=html_body,
+            html=True
+        )
+    except:
+        return jsonify({"msg": "Somethign weird happened."}), 500
+
+    return jsonify({"msg": f"user {email} registered succesfully"}), 200
 
 
 @api.route('/sauces', methods=['GET'])
@@ -116,6 +153,7 @@ def update_instance_values(instance, values_dict, keys):
     for key in keys:
         if key in values_dict:
             setattr(instance, key, values_dict[key])
+
 
 @api.route('/proteins/<int:id>', methods=['PUT'])
 def update_protein(id):
